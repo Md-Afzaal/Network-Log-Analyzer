@@ -59,28 +59,6 @@ public class LogAnalyzer {
         return log.getSourceIp();
     }
 
-    public void analysisResult(AnalysisResult result){
-        int totalLogs = result.getTotalLogs();
-        int successCount = result.getSuccessCount();
-        int failedCount = result.getFailedCount();
-        Map<String,Integer> protocol = result.getProtocol();
-        Map<Integer,Integer> ports = result.getPorts();
-        Map<String, Integer> sourceIp = result.getSourceIp();
-        System.out.println("======== NETWORK ANALYSIS ========");
-        System.out.println("Total Logs: "+totalLogs+"\nSuccess: "+successCount+"\nFailed: "+failedCount);
-        System.out.println("\n---- Protocol Distribution ----");
-        for (String protocolName : protocol.keySet()) {
-            System.out.println(protocolName+" : "+protocol.get(protocolName));
-        }
-        System.out.println("\n---- Port Activity ----");
-        for (Integer  portNumber : ports.keySet()) {
-            System.out.println(portNumber+" : "+ports.get(portNumber));
-        }
-        System.out.println("\n---- Source IP Distribution ----");
-        for (String sourceIP_ : sourceIp.keySet()) {
-            System.out.println(sourceIP_+" : "+sourceIp.get(sourceIP_));
-        }
 
-    }
 
 }
