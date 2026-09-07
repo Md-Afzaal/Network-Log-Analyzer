@@ -32,7 +32,7 @@ public class SortCLI {
                     sortByBytes(logs,logSorter,scan);
                     break;
                 case 3:
-                    System.out.print("\nSort By ports incoming: ");
+                    sortByPort(logs,logSorter,scan);
                     break;
                 case 4:
                     System.out.print("\nSort by status incoming: ");
@@ -126,6 +126,49 @@ public class SortCLI {
             displaySortedLogs(logs.get(i));
         }
     }
+
+    public void sortByPort(List<NetworkLog> logs,LogSorter logSorter,Scanner scan) {
+        int choice = 0;
+        while (true){
+            System.out.println("\n------------ Sort Order ------------\n");
+            System.out.println("1. Smallest to Largest\n"+
+                    "2. Largest to Smallest\n"+
+                    "3. Back\n");
+            System.out.print("Enter your choice: ");
+            choice = scan.nextInt();
+            switch (choice) {
+                case 1:
+                    sortPortByAscendingOrder(logs,logSorter);
+                    break;
+                case 2:
+                    sortPortByDescendingOrder(logs,logSorter);
+                    break;
+                case 3:
+                    return;
+                default:
+                    System.out.println("Invalid choice.");
+                    break;
+
+            }
+        }
+    }
+
+    public void sortPortByAscendingOrder(List<NetworkLog> logs,LogSorter logSorter) {
+        logSorter.quickSort(logs,0,logs.size()-1, Comparator.comparingLong(NetworkLog::getPort));
+        System.out.println("\n=========== Sorted  Logs ===========\n");
+        for(NetworkLog log : logs){
+            displaySortedLogs(log);
+        }
+    }
+
+    public void sortPortByDescendingOrder(List<NetworkLog> logs,LogSorter logSorter) {
+        logSorter.quickSort(logs,0,logs.size()-1, Comparator.comparingLong(NetworkLog::getPort));
+        System.out.println("\n=========== Sorted  Logs ===========\n");
+        for(int i = logs.size()-1; i >= 0; i--){
+            displaySortedLogs(logs.get(i));
+        }
+    }
+
     public void displaySortedLogs(NetworkLog log) {
         LocalDateTime dateTime = log.getTimestamp();
         String sourceIp = log.getSourceIp();
