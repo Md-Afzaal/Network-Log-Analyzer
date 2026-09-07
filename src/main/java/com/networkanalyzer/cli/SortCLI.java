@@ -6,7 +6,7 @@ import com.networkanalyzer.sort.LogSorter;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Scanner;
-
+// resolve
 public class SortCLI {
     public void sortLogBy(List<NetworkLog> logs, Scanner scan) {
         LogSorter logSorter = new LogSorter();
