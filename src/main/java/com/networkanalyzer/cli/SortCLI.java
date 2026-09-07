@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Scanner;
-// resolve
+
 public class SortCLI {
     public void sortLogBy(List<NetworkLog> logs, Scanner scan) {
         LogSorter logSorter = new LogSorter();
@@ -35,7 +35,7 @@ public class SortCLI {
                     sortByPort(logs,logSorter,scan);
                     break;
                 case 4:
-                    System.out.print("\nSort by status incoming: ");
+                    sortByStatus(logs,logSorter,scan);
                     break;
                 default:
                     System.out.println("Invalid choice.");
@@ -154,7 +154,7 @@ public class SortCLI {
     }
 
     public void sortPortByAscendingOrder(List<NetworkLog> logs,LogSorter logSorter) {
-        logSorter.quickSort(logs,0,logs.size()-1, Comparator.comparingLong(NetworkLog::getPort));
+        logSorter.quickSort(logs,0,logs.size()-1, Comparator.comparingInt(NetworkLog::getPort));
         System.out.println("\n=========== Sorted  Logs ===========\n");
         for(NetworkLog log : logs){
             displaySortedLogs(log);
@@ -162,12 +162,54 @@ public class SortCLI {
     }
 
     public void sortPortByDescendingOrder(List<NetworkLog> logs,LogSorter logSorter) {
-        logSorter.quickSort(logs,0,logs.size()-1, Comparator.comparingLong(NetworkLog::getPort));
+        logSorter.quickSort(logs,0,logs.size()-1, Comparator.comparingInt(NetworkLog::getPort));
         System.out.println("\n=========== Sorted  Logs ===========\n");
         for(int i = logs.size()-1; i >= 0; i--){
             displaySortedLogs(logs.get(i));
         }
     }
+
+    public void sortByStatus(List<NetworkLog> logs,LogSorter logSorter,Scanner scan) {
+        int choice = 0;
+        while (true){
+            System.out.println("\n------------ Sort Order ------------\n");
+            System.out.println("1. Failed First\n"+
+                    "2. Successful First\n"+
+                    "3. Back\n");
+            System.out.print("Enter your choice: ");
+            choice = scan.nextInt();
+            switch (choice) {
+                case 1:
+                    sortStatusByFailedFirst(logs,logSorter);
+                    break;
+                case 2:
+                    sortStatusBySuccessfulFirst(logs,logSorter);
+                    break;
+                case 3:
+                    return;
+                default:
+                    System.out.println("Invalid choice.");
+                    break;
+
+            }
+        }
+    }
+
+    public void sortStatusByFailedFirst(List<NetworkLog> logs,LogSorter logSorter) {
+        logSorter.quickSort(logs,0, logs.size()-1, Comparator.comparing(NetworkLog::getStatus) );
+        for(NetworkLog log : logs){
+            displaySortedLogs(log);
+        }
+    }
+
+    public void sortStatusBySuccessfulFirst(List<NetworkLog> logs,LogSorter logSorter) {
+        logSorter.quickSort(logs,0, logs.size()-1, Comparator.comparing(NetworkLog::getStatus) );
+        for(int i = logs.size()-1; i >= 0; i--){
+            displaySortedLogs(logs.get(i));
+        }
+    }
+
+
 
     public void displaySortedLogs(NetworkLog log) {
         LocalDateTime dateTime = log.getTimestamp();
