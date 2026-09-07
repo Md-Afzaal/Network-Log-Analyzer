@@ -4,6 +4,7 @@ import com.networkanalyzer.model.NetworkLog;
 import com.networkanalyzer.sort.LogSorter;
 
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Scanner;
 // resolve
@@ -28,13 +29,13 @@ public class SortCLI {
                     sortByTimeStamp(logs,logSorter,scan);
                     break;
                 case 2:
-                    System.out.print("\nEnter DestinationIP: ");
+                    sortByBytes(logs,logSorter,scan);
                     break;
                 case 3:
-                    System.out.print("\nEnter Protocol: ");
+                    System.out.print("\nSort By ports incoming: ");
                     break;
                 case 4:
-                    System.out.print("\nEnter Port: ");
+                    System.out.print("\nSort by status incoming: ");
                     break;
                 default:
                     System.out.println("Invalid choice.");
@@ -45,29 +46,32 @@ public class SortCLI {
     }
     public void sortByTimeStamp(List<NetworkLog> logs,LogSorter logSorter,Scanner scan) {
         int choice = 0;
-        System.out.println("\n------------ Sort Order ------------\n");
-        System.out.println("1. Oldest to Newest\n"+
-                            "2. Newest to Oldest\n"+
-                            "3. Back\n");
-        choice = scan.nextInt();
-        switch (choice) {
-            case 1:
-                sortTimeStampByAscendingOrder(logs,logSorter);
-                break;
-            case 2:
-                sortTimeStampByDescendingOrder(logs,logSorter);
-                break;
-            case 3:
-                return;
-            default:
-                System.out.println("Invalid choice.");
-                break;
+        while (true){
+            System.out.println("\n------------ Sort Order ------------\n");
+            System.out.println("1. Oldest to Newest\n"+
+                    "2. Newest to Oldest\n"+
+                    "3. Back\n");
+            System.out.print("Enter your choice: ");
+            choice = scan.nextInt();
+            switch (choice) {
+                case 1:
+                    sortTimeStampByAscendingOrder(logs,logSorter);
+                    break;
+                case 2:
+                    sortTimeStampByDescendingOrder(logs,logSorter);
+                    break;
+                case 3:
+                    return;
+                default:
+                    System.out.println("Invalid choice.");
+                    break;
 
+            }
         }
     }
 
     public void sortTimeStampByAscendingOrder(List<NetworkLog> logs,LogSorter logSorter) {
-        logSorter.quickSort(logs,0,logs.size()-1);
+        logSorter.quickSort(logs,0,logs.size()-1, Comparator.comparing(NetworkLog::getTimestamp));
         System.out.println("\n=========== Sorted  Logs ===========\n");
         for(NetworkLog log : logs){
             displaySortedLogs(log);
@@ -75,13 +79,53 @@ public class SortCLI {
     }
 
     public void sortTimeStampByDescendingOrder(List<NetworkLog> logs,LogSorter logSorter) {
-        logSorter.quickSort(logs,0,logs.size()-1);
+        logSorter.quickSort(logs,0,logs.size()-1, Comparator.comparing(NetworkLog::getTimestamp));
         System.out.println("\n=========== Sorted  Logs ===========\n");
         for(int i = logs.size()-1; i >= 0; i--){
             displaySortedLogs(logs.get(i));
         }
     }
 
+    public void sortByBytes(List<NetworkLog> logs,LogSorter logSorter,Scanner scan) {
+        int choice = 0;
+        while (true){
+            System.out.println("\n------------ Sort Order ------------\n");
+            System.out.println("1. Smallest to Largest\n"+
+                    "2. Largest to Smallest\n"+
+                    "3. Back\n");
+            System.out.print("Enter your choice: ");
+            choice = scan.nextInt();
+            switch (choice) {
+                case 1:
+                    sortBytesByAscendingOrder(logs,logSorter);
+                    break;
+                case 2:
+                    sortBytesByDescendingOrder(logs,logSorter);
+                    break;
+                case 3:
+                    return;
+                default:
+                    System.out.println("Invalid choice.");
+                    break;
+
+            }
+        }
+    }
+    public void sortBytesByAscendingOrder(List<NetworkLog> logs,LogSorter logSorter) {
+        logSorter.quickSort(logs,0,logs.size()-1, Comparator.comparingLong(NetworkLog::getBytes));
+        System.out.println("\n=========== Sorted  Logs ===========\n");
+        for(NetworkLog log : logs){
+            displaySortedLogs(log);
+        }
+    }
+
+    public void sortBytesByDescendingOrder(List<NetworkLog> logs,LogSorter logSorter) {
+        logSorter.quickSort(logs,0,logs.size()-1, Comparator.comparingLong(NetworkLog::getBytes));
+        System.out.println("\n=========== Sorted  Logs ===========\n");
+        for(int i = logs.size()-1; i >= 0; i--){
+            displaySortedLogs(logs.get(i));
+        }
+    }
     public void displaySortedLogs(NetworkLog log) {
         LocalDateTime dateTime = log.getTimestamp();
         String sourceIp = log.getSourceIp();
