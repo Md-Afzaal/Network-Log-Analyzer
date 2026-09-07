@@ -45,28 +45,25 @@ public class SortCLI {
     }
     public void sortByTimeStamp(List<NetworkLog> logs,LogSorter logSorter,Scanner scan) {
         int choice = 0;
-        while(true){
-            System.out.println("\n------------ Sort Order ------------\n");
-            System.out.println("1. Oldest to Newest\n"+
-                    "2. Newest to Oldest\n"+
-                    "3. Back\n");
-            choice = scan.nextInt();
-            switch (choice) {
-                case 1:
-                    sortTimeStampByAscendingOrder(logs,logSorter);
-                    break;
-                case 2:
-                    sortTimeStampByDescendingOrder(logs,logSorter);
-                    break;
-                case 3:
-                    return;
-                default:
-                    System.out.println("Invalid choice.");
-                    return;
+        System.out.println("\n------------ Sort Order ------------\n");
+        System.out.println("1. Oldest to Newest\n"+
+                            "2. Newest to Oldest\n"+
+                            "3. Back\n");
+        choice = scan.nextInt();
+        switch (choice) {
+            case 1:
+                sortTimeStampByAscendingOrder(logs,logSorter);
+                break;
+            case 2:
+                sortTimeStampByDescendingOrder(logs,logSorter);
+                break;
+            case 3:
+                return;
+            default:
+                System.out.println("Invalid choice.");
+                break;
 
-            }
         }
-
     }
 
     public void sortTimeStampByAscendingOrder(List<NetworkLog> logs,LogSorter logSorter) {
