@@ -3,7 +3,7 @@ package com.networkanalyzer.parser;
 import com.networkanalyzer.model.NetworkLog;
 
 import java.io.BufferedReader;
-import java.io.FileReader;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.nio.file.Paths;
 import java.util.List;
@@ -12,7 +12,7 @@ public class LogParser {
     public List<NetworkLog> parse() {
         try{
             List<NetworkLog> lst = new ArrayList<>();
-            BufferedReader reader = new BufferedReader(new FileReader(String.valueOf(Paths.get("logs/sample.log"))));
+            BufferedReader reader = Files.newBufferedReader(Paths.get("logs/sample.log"));
             String line;
 
             while ((line = reader.readLine()) != null) {
