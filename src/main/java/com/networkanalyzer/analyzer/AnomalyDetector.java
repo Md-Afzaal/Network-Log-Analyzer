@@ -3,13 +3,19 @@ package com.networkanalyzer.analyzer;
 import com.networkanalyzer.model.Anomaly;
 import com.networkanalyzer.model.NetworkLog;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class AnomalyDetector {
     public List<Anomaly> detectAnomalies(List<NetworkLog> logs) {
+        List<Anomaly> anomalies = new ArrayList<>();
+        anomalies.addAll(detectRepeatedFailedAttempts(logs));
+        anomalies.addAll(detectPortScans(logs));
+
+        // Return all detected anomalies to the caller.
+        return anomalies;
+    }
+
+    public List<Anomaly> detectRepeatedFailedAttempts(List<NetworkLog> logs){
 
         // Stores the number of FAILED connection attempts for each
         // source IP -> destination IP pair.
@@ -51,7 +57,7 @@ public class AnomalyDetector {
                 int count = map.get(entry);
 
                 // Create a description for the anomaly.
-                String description = count+" "+"failed connection attempts detected";
+                String description = count+" failed connection attempts detected";
 
                 // Store the detected anomaly in the result list.
                 Anomaly anomaly = new Anomaly(
@@ -65,8 +71,48 @@ public class AnomalyDetector {
                 anomalies.add(anomaly);
             }
         }
+        return anomalies;
+    }
 
-        // Return all detected anomalies to the caller.
+    public List<Anomaly> detectPortScans(List<NetworkLog> logs){
+        Map<String, Set<Integer>> map = new HashMap<>();
+        List<Anomaly> anomalies = new ArrayList<>();
+        String type = "Port Scan";
+        for (NetworkLog log: logs){
+            String key = log.getSourceIp()+"->"+log.getDestinationIp();
+            Set<Integer> ports = map.get(key);
+            if(ports == null){
+                ports = new HashSet<>();
+                map.put(key,ports);
+            }
+            ports.add(log.getPort());
+
+        }
+        for(String key: map.keySet()){
+            if(map.get(key).size()>=5){
+                // Split the connection key back into source and destination IPs.
+                String[] split = key.split("->");
+                String sourceIp = split[0];
+                String destinationIp = split[1];
+
+                // Get the total number of unique port for this pair.
+                int count = map.get(key).size();
+
+                // Create a description for the anomaly.
+                String description = count+" unique ports connected";
+
+                // Store the detected anomaly in the result list.
+                Anomaly anomaly = new Anomaly(
+                        type,
+                        sourceIp,
+                        destinationIp,
+                        description,
+                        count
+                );
+
+                anomalies.add(anomaly);
+            }
+        }
         return anomalies;
     }
 }
