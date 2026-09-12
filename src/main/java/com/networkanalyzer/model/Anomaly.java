@@ -8,9 +8,15 @@ public class Anomaly {
     private String sourceIp;
     private String destinationIp;
     private String description;
-    private int count;
+    private long count;
 
-    public Anomaly(String type, String sourceIp, String destinationIp, String description, int count) {
+    public Anomaly(
+            String type,
+            String sourceIp,
+            String destinationIp,
+            String description,
+            long count
+    ) {
         this.type = type;
         this.sourceIp = sourceIp;
         this.destinationIp = destinationIp;

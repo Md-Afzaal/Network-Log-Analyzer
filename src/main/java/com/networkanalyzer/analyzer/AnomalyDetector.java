@@ -10,6 +10,7 @@ public class AnomalyDetector {
         List<Anomaly> anomalies = new ArrayList<>();
         anomalies.addAll(detectRepeatedFailedAttempts(logs));
         anomalies.addAll(detectPortScans(logs));
+        anomalies.addAll(detectHighBytes(logs));
 
         // Return all detected anomalies to the caller.
         return anomalies;
@@ -114,5 +115,56 @@ public class AnomalyDetector {
             }
         }
         return anomalies;
+    }
+
+    public List<Anomaly> detectHighBytes(List<NetworkLog> logs){
+        Map<String,List<Long>> map = new HashMap<>();
+        List<Anomaly> anomalies = new ArrayList<>();
+        String type = "High Data Transfer";
+        long threshold = 1_000_000L;
+        for (NetworkLog log: logs){
+            String key = log.getSourceIp()+"->"+log.getDestinationIp();
+            long bytes = log.getBytes();
+            List<Long> bytesList = map.get(key);
+            if(bytesList == null){
+                bytesList = new ArrayList<>();
+                map.put(key,bytesList);
+            }
+            bytesList.add(bytes);
+        }
+        for(String key: map.keySet()){
+                // Split the connection key back into source and destination IPs.
+                String[] split = key.split("->");
+                String sourceIp = split[0];
+                String destinationIp = split[1];
+
+                long sum = getTotalBytes(map.get(key));
+
+                if(sum >= threshold){
+                    // Create a description for the anomaly.
+                    String description = sum+" bytes transferred between source and destination";
+
+                    // Store the detected anomaly in the result list.
+                    Anomaly anomaly = new Anomaly(
+                            type,
+                            sourceIp,
+                            destinationIp,
+                            description,
+                            sum
+                    );
+
+                    anomalies.add(anomaly);
+                }
+            }
+
+        return anomalies;
+    }
+
+    private long getTotalBytes(List<Long> list){
+        long sum = 0;
+        for (long bytes: list){
+            sum+=bytes;
+        }
+        return sum;
     }
 }
