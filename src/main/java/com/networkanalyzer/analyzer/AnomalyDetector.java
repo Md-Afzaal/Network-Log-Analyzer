@@ -11,6 +11,7 @@ public class AnomalyDetector {
         anomalies.addAll(detectRepeatedFailedAttempts(logs));
         anomalies.addAll(detectPortScans(logs));
         anomalies.addAll(detectHighBytes(logs));
+        anomalies.addAll(detectSensitivePorts(logs));
 
         // Return all detected anomalies to the caller.
         return anomalies;
@@ -65,6 +66,7 @@ public class AnomalyDetector {
                         type,
                         sourceIp,
                         destinationIp,
+                        -1,
                         description,
                         count
                 );
@@ -107,6 +109,7 @@ public class AnomalyDetector {
                         type,
                         sourceIp,
                         destinationIp,
+                        -1,
                         description,
                         count
                 );
@@ -149,6 +152,7 @@ public class AnomalyDetector {
                             type,
                             sourceIp,
                             destinationIp,
+                            -1,
                             description,
                             sum
                     );
@@ -166,5 +170,50 @@ public class AnomalyDetector {
             sum+=bytes;
         }
         return sum;
+    }
+
+    public List<Anomaly> detectSensitivePorts(List<NetworkLog> logs){
+        Map<String,Map<Integer,Integer>> map = new HashMap<>();
+        List<Anomaly> anomalies = new ArrayList<>();
+        String type = "Sensitive Port Access";
+        Set<Integer> sensitivePorts = Set.of(21,22,23,3389);
+
+        for(NetworkLog log: logs){
+            String key = log.getSourceIp()+"->"+log.getDestinationIp();
+            int port = log.getPort();
+            if (sensitivePorts.contains(port)){
+                Map<Integer,Integer> portMap = map.get(key);
+                if(portMap == null){
+                    portMap = new HashMap<>();
+                }
+                portMap.put(port,portMap.getOrDefault(port,0)+1);
+                map.put(key,portMap);
+            }
+        }
+        for (String key: map.keySet()){
+            String[] split = key.split("->");
+            String sourceIp = split[0];
+            String destinationIp = split[1];
+            for (int portKey: map.get(key).keySet()){
+                int portCount = map.get(key).get(portKey);
+                if (portCount >= 3){
+                    String description = portCount+ " access attempts detected";
+
+                    // Store the detected anomaly in the result list.
+                    Anomaly anomaly = new Anomaly(
+                            type,
+                            sourceIp,
+                            destinationIp,
+                            portKey,
+                            description,
+                            portCount
+                    );
+
+                    anomalies.add(anomaly);
+                }
+            }
+
+        }
+        return anomalies;
     }
 }
