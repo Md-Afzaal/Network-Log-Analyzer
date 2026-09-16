@@ -20,8 +20,15 @@ public class NetworkLog {
             this.destinationIp = lst[2];
             this.protocol = lst[3];
             this.port = Integer.parseInt(lst[4]);
+            validatePort(this.port);
             this.status = lst[5];
             this.bytes = Long.parseLong(lst[6]);
+    }
+
+    public void validatePort(int port){
+        if(port>65535 || port<0){
+            throw new IllegalArgumentException("Invalid port: "+ port);
+        }
     }
 
 }
