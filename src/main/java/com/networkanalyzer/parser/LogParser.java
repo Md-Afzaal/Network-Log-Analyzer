@@ -21,7 +21,7 @@ public class LogParser {
                 if(line.isEmpty()){
                     continue;
                 }
-                String[] split = line.split(" ");
+                String[] split = line.trim().split("\\s+");
                 if(split.length != LOG_FIELDS){
                     malformedLines(line);
                     continue;
