@@ -2,17 +2,33 @@
 
 A Java-based network log analysis system designed to parse, analyze, filter, sort, and detect suspicious patterns in network logs.
 
-## Current Features
+The project focuses on data processing, algorithms, rule-based anomaly detection, input validation, and automated unit testing.
 
-- Network log parsing
+---
+
+## Features
+
+- Network log parsing and validation
 - Log analysis and statistics
 - Log filtering
 - Log sorting using Quick Sort
 - Rule-based anomaly detection
-  - Repeated failed connection attempts
-  - Port scan detection
-  - High data transfer detection
 - Console-based CLI
+- Input validation
+- Malformed log handling
+- Empty-log handling
+- JUnit unit testing
+
+### Anomaly Detection
+
+The project currently detects:
+
+1. Repeated failed connection attempts
+2. Port scans
+3. High data transfer
+4. Sensitive port access
+
+---
 
 ## Project Structure
 
@@ -20,32 +36,52 @@ A Java-based network log analysis system designed to parse, analyze, filter, sor
 Network-Log-Analyzer/
 │
 ├── src/
-│   └── main/
+│   ├── main/
+│   │   └── java/
+│   │       └── com/
+│   │           └── networkanalyzer/
+│   │               ├── analyzer/
+│   │               │   ├── AnomalyDetector.java
+│   │               │   └── LogAnalyzer.java
+│   │               │
+│   │               ├── cli/
+│   │               │   ├── ConsoleCLI.java
+│   │               │   ├── FilterCLI.java
+│   │               │   └── SortCLI.java
+│   │               │
+│   │               ├── filter/
+│   │               │   └── LogFilter.java
+│   │               │
+│   │               ├── model/
+│   │               │   ├── AnalysisResult.java
+│   │               │   ├── Anomaly.java
+│   │               │   └── NetworkLog.java
+│   │               │
+│   │               ├── parser/
+│   │               │   └── LogParser.java
+│   │               │
+│   │               └── sort/
+│   │                   └── LogSorter.java
+│   │
+│   └── test/
 │       └── java/
 │           └── com/
 │               └── networkanalyzer/
 │                   ├── analyzer/
-│                   │   ├── AnomalyDetector.java
-│                   │   └── LogAnalyzer.java
-│                   │
-│                   ├── cli/
-│                   │   ├── ConsoleCLI.java
-│                   │   ├── FilterCLI.java
-│                   │   └── SortCLI.java
+│                   │   ├── AnomalyDetectorTest.java
+│                   │   └── LogAnalyzerTest.java
 │                   │
 │                   ├── filter/
-│                   │   └── LogFilter.java
+│                   │   └── LogFilterTest.java
 │                   │
 │                   ├── model/
-│                   │   ├── AnalysisResult.java
-│                   │   ├── Anomaly.java
-│                   │   └── NetworkLog.java
+│                   │   └── NetworkLogTest.java
 │                   │
 │                   ├── parser/
-│                   │   └── LogParser.java
+│                   │   └── LogParserTest.java
 │                   │
 │                   └── sort/
-│                       └── LogSorter.java
+│                       └── LogSorterTest.java
 │
 ├── logs/
 │   └── sample.log
@@ -54,35 +90,63 @@ Network-Log-Analyzer/
 └── README.md
 ```
 
-## Features
+---
 
-### 1. Network Log Parsing
+# Log Format
 
-The application reads network logs from a log file and converts each entry into a `NetworkLog` object.
+Each log entry contains seven fields:
 
-Each network log contains:
-
-- Timestamp
-- Source IP
-- Destination IP
-- Protocol
-- Port
-- Status
-- Bytes transferred
+```text
+Timestamp SourceIP DestinationIP Protocol Port Status Bytes
+```
 
 Example:
 
 ```text
-2026-08-20T10:15:30 192.168.1.10 192.168.1.50 TCP 443 SUCCESS 1200
+2026-09-19T10:01 192.168.1.10 192.168.1.20 TCP 443 SUCCESS 1200
 ```
 
-The parser processes the log file and stores the resulting entries in a list.
+### Fields
 
-### 2. Log Analysis
+| Field | Description |
+|---|---|
+| Timestamp | Date and time of the network event |
+| Source IP | IP address initiating the connection |
+| Destination IP | IP address receiving the connection |
+| Protocol | Network protocol |
+| Port | Destination port |
+| Status | Connection status |
+| Bytes | Number of bytes transferred |
 
-The analyzer generates statistics from the parsed logs.
+---
 
-Currently, it provides:
+# 1. Log Parsing
+
+The `LogParser` reads network logs from `logs/sample.log` and converts valid entries into `NetworkLog` objects.
+
+The parser handles malformed entries without stopping the entire parsing process.
+
+### Validation
+
+The application validates:
+
+- Timestamp format
+- Number of fields
+- Protocol
+- Port range
+- Numeric port values
+- Connection status
+- Byte values
+
+Invalid records are skipped and reported instead of terminating the application.
+
+---
+
+# 2. Log Analysis
+
+The `LogAnalyzer` generates statistics from the parsed logs.
+
+Currently supported statistics include:
 
 - Total number of logs
 - Successful connections
@@ -91,101 +155,115 @@ Currently, it provides:
 - Port distribution
 - Source IP distribution
 
+The statistics are calculated dynamically from the loaded log file.
+
+---
+
+# 3. Log Filtering
+
+Logs can be filtered using five criteria:
+
+```text
+1. Source IP
+2. Destination IP
+3. Protocol
+4. Port
+5. Status
+```
+
 Example:
 
 ```text
-Total Logs: 50
-Successful Connections: 36
-Failed Connections: 14
-
-Protocol Distribution:
-TCP: 37
-UDP: 13
+Enter filter option:
+1. Source IP
+2. Destination IP
+3. Protocol
+4. Port
+5. Status
 ```
 
-### 3. Log Filtering
+The filtering logic is implemented in the `LogFilter` class, while user interaction and input validation are handled by `FilterCLI`.
 
-Logs can be filtered using different criteria:
+Supported status values:
 
-- Source IP
-- Destination IP
-- Protocol
-- Port
-- Status
+```text
+SUCCESS
+FAILED
+```
 
-The filtering functionality is implemented using a dedicated `LogFilter` class.
+Supported protocols:
 
-### 4. Log Sorting
+```text
+TCP
+UDP
+```
 
-The project implements Quick Sort for sorting network logs.
+---
 
-Users can sort logs by:
+# 4. Log Sorting
+
+The project implements **Quick Sort** for sorting network logs.
+
+Logs can currently be sorted by:
 
 - Timestamp
 - Bytes
 - Port
 - Status
 
-Ascending and descending ordering are supported.
+Both ascending and descending orders are supported.
 
 The sorting implementation uses Java's `Comparator` interface, allowing the same Quick Sort implementation to work with different log fields.
 
-Example:
+### Sorting Algorithm
 
-```text
-Timestamp:
-Oldest → Newest
-Newest → Oldest
+The project uses **Hoare Partition Quick Sort**.
 
-Bytes:
-Smallest → Largest
-Largest → Smallest
-```
+The sorting operation is performed in-place on the list.
 
-### 5. Rule-Based Anomaly Detection
+---
 
-The project currently includes three rule-based anomaly detection techniques.
+# 5. Rule-Based Anomaly Detection
 
-#### 5.1 Repeated Failed Attempts
+The project contains four rule-based anomaly detection techniques.
+
+## 5.1 Repeated Failed Attempts
 
 Detects repeated failed connections between the same source and destination IP addresses.
 
-The current rule flags a connection pair when it has 3 or more failed attempts.
+### Rule
 
-The implementation uses:
+A source-destination pair is considered anomalous when it has:
+
+```text
+3 or more FAILED attempts
+```
+
+The implementation groups failed attempts using a map:
 
 ```text
 Map<String, Integer>
 ```
 
-where the key represents:
+The key represents:
 
 ```text
-source IP -> destination IP
+Source IP -> Destination IP
 ```
 
-and the value represents the number of failed attempts.
+---
 
-Example:
+## 5.2 Port Scan Detection
+
+Detects when a source IP contacts a destination IP using multiple different ports.
+
+### Rule
+
+A source-destination pair is flagged when it accesses:
 
 ```text
-Source: 192.168.1.20
-Destination: 192.168.1.50
-Failed Attempts: 9
+5 or more unique ports
 ```
-
-Result:
-
-```text
-Type: Repeated failed attempts
-Description: 9 failed connection attempts detected
-```
-
-#### 5.2 Port Scan Detection
-
-Detects when the same source IP contacts the same destination IP using multiple different ports.
-
-The current rule flags a pair when it contacts 5 or more unique ports.
 
 The implementation uses:
 
@@ -193,36 +271,21 @@ The implementation uses:
 Map<String, Set<Integer>>
 ```
 
-The `Set` ensures that repeated connections to the same port are counted only once.
+A `Set` is used so that repeated access to the same port is counted only once.
 
-Example:
+---
 
-```text
-Source: 192.168.1.20
-Destination: 192.168.1.50
+## 5.3 High Data Transfer
 
-Ports:
-21
-22
-23
-25
-53
-80
-110
-443
-8080
-```
+Detects unusually large amounts of data transferred between the same source and destination.
 
-Result:
+### Rule
+
+A source-destination pair is flagged when the total transferred data reaches:
 
 ```text
-Type: Port Scan
-Description: 9 unique ports connected
+1,000,000 bytes
 ```
-
-#### 5.3 High Data Transfer
-
-Detects source-to-destination pairs that transfer a large amount of data.
 
 The implementation groups byte values using:
 
@@ -230,41 +293,38 @@ The implementation groups byte values using:
 Map<String, List<Long>>
 ```
 
-The byte values for each source → destination pair are collected and then summed.
+The byte values are summed for each source-destination pair.
 
-The total is compared against a configurable threshold.
+---
 
-For testing with the current sample dataset, the threshold can be set to:
+## 5.4 Sensitive Port Access
 
-```text
-10,000 bytes
-```
+Detects repeated access to commonly sensitive ports.
 
-Example:
+Currently monitored ports are:
 
 ```text
-Source: 192.168.1.15
-Destination: 142.250.195.14
-
-Transferred:
-8000 bytes
-7500 bytes
-11600 bytes
-
-Total:
-27100 bytes
+21
+22
+23
+3389
 ```
 
-Result:
+### Rule
+
+A source-destination-port combination is flagged when the same sensitive port is accessed:
 
 ```text
-Type: High Data Transfer
-Description: 27100 bytes transferred between source and destination
+3 or more times
 ```
 
-## Anomaly Detection Architecture
+Both successful and failed connections are considered.
 
-All anomaly detection rules are coordinated through the `detectAnomalies()` method.
+---
+
+# Anomaly Detection Architecture
+
+The anomaly detection system is organized into separate detection methods.
 
 ```text
 detectAnomalies()
@@ -273,19 +333,23 @@ detectAnomalies()
        │
        ├── detectPortScans()
        │
-       └── detectHighBytes()
+       ├── detectHighBytes()
+       │
+       └── detectSensitivePortAccess()
        │
        ↓
    List<Anomaly>
 ```
 
-Each detection rule is implemented as a separate method, making it easier to add additional rules later.
+This structure makes it easier to add new detection rules in the future.
 
-## Console Interface
+---
 
-The application currently provides a console-based interface.
+# 6. Console CLI
 
-Main menu:
+The application provides an interactive console interface.
+
+### Main Menu
 
 ```text
 1. View Log Analysis
@@ -295,53 +359,97 @@ Main menu:
 5. Exit
 ```
 
-Filtering and sorting functionality use separate CLI classes to keep the main console interface organized.
+The CLI handles:
 
-## Technologies Used
+- Invalid menu input
+- Invalid numeric input
+- Invalid filter values
+- Invalid sorting options
+- Empty log files
+- Navigation between menus
 
-- Java
-- Maven
-- Lombok
-- Java Collections Framework
-- Object-Oriented Programming
-- Quick Sort
-- Rule-Based Anomaly Detection
+---
 
-## Algorithms and Data Structures
+# 7. Unit Testing
 
-| Feature | Data Structure / Algorithm |
+The project includes JUnit tests for the main components.
+
+### Tested Components
+
+- `NetworkLog`
+- `LogParser`
+- `LogFilter`
+- `LogSorter`
+- `AnomalyDetector`
+- `LogAnalyzer`
+
+### Test Coverage Includes
+
+- Valid log creation
+- Invalid timestamps
+- Invalid protocols
+- Invalid ports
+- Negative ports
+- Invalid statuses
+- Negative byte values
+- Malformed log entries
+- Source IP filtering
+- Destination IP filtering
+- Protocol filtering
+- Port filtering
+- Status filtering
+- Timestamp sorting
+- Byte sorting
+- Port sorting
+- Status sorting
+- Repeated failed attempt detection
+- Port scan detection
+- High data transfer detection
+- Sensitive port detection
+- Threshold validation
+- Log analysis
+- Empty input handling
+
+The complete test suite currently passes successfully.
+
+---
+
+# Technologies Used
+
+- **Java**
+- **Maven**
+- **JUnit**
+- **Lombok**
+- **Apache Commons Validator**
+- **Java Collections Framework**
+- **Object-Oriented Programming**
+
+---
+
+# Algorithms & Data Structures
+
+| Feature | Algorithm / Data Structure |
 |---|---|
 | Log Storage | `ArrayList` |
 | Log Analysis | `HashMap` |
 | Filtering | Linear Search |
 | Sorting | Quick Sort |
-| Timestamp Sorting | `Comparator` |
-| Port Sorting | `Comparator` |
-| Byte Sorting | `Comparator` |
-| Status Sorting | `Comparator` |
+| Sorting Comparison | `Comparator` |
 | Failed Attempt Detection | `HashMap` |
 | Port Scan Detection | `HashMap + HashSet` |
 | High Data Transfer | `HashMap + ArrayList` |
+| Sensitive Port Detection | `HashMap` |
 
-## Future Development
+---
 
-Planned improvements include:
+# Project Status
 
-- Sensitive port access detection
-- Additional rule-based anomaly detection
-- Configurable thresholds
-- Time-window based detection
-- Statistical anomaly detection
-- Machine learning based detection
-- Improved anomaly reporting
-- Visualization and dashboards
-
-## Project Status
-
-### Completed
+## Completed
 
 - [x] Network log model
 - [x] Log parser
+- [x] Parser input validation
+- [x] Malformed log handling
 - [x] Log analysis
 - [x] Log filtering
 - [x] Quick Sort implementation
@@ -350,18 +458,149 @@ Planned improvements include:
 - [x] Port sorting
 - [x] Status sorting
 - [x] Console CLI
+- [x] CLI input validation
+- [x] Empty-log handling
 - [x] Repeated failed attempt detection
 - [x] Port scan detection
 - [x] High data transfer detection
+- [x] Sensitive port access detection
+- [x] JUnit unit tests
 
-### In Progress
+---
+
+# Future Development
+
+The project is planned to be extended with more advanced anomaly detection and analysis capabilities.
 
 - [ ] Additional anomaly detection rules
-- [ ] Advanced anomaly detection
-- [ ] Machine learning based detection
+- [ ] Configurable anomaly thresholds
+- [ ] Time-window based anomaly detection
+- [ ] Statistical anomaly detection
+- [ ] Machine learning based anomaly detection
+- [ ] Improved anomaly reporting
+- [ ] Visualization and dashboards
+- [ ] Large-scale log processing
 
-## Author
+---
+
+# Future Machine Learning Integration
+
+The current anomaly detection system is rule-based.
+
+Future versions can use the existing log-processing pipeline as the foundation for machine learning.
+
+Potential features for ML models include:
+
+- Connection frequency
+- Failed connection count
+- Unique ports contacted
+- Bytes transferred
+- Connection status
+- Protocol
+- Source-destination behavior
+- Time-based activity patterns
+
+This can allow the project to move from manually defined rules toward data-driven anomaly detection.
+
+---
+
+# Project Architecture
+
+```text
+                    Network Logs
+                         │
+                         ▼
+                    LogParser
+                         │
+                         ▼
+                   NetworkLog
+                         │
+             ┌───────────┼───────────┐
+             │           │           │
+             ▼           ▼           ▼
+        LogAnalyzer   LogFilter   LogSorter
+             │           │           │
+             └───────────┼───────────┘
+                         │
+                         ▼
+                 AnomalyDetector
+                         │
+          ┌──────────────┼──────────────┐
+          │              │              │
+          ▼              ▼              ▼
+      Failed          Port Scan     High Data
+      Attempts                       Transfer
+                         │
+                         ▼
+                  Sensitive Ports
+                         │
+                         ▼
+                      Anomaly
+```
+
+---
+
+# Running the Project
+
+### Requirements
+
+- Java Development Kit
+- Maven
+- IntelliJ IDEA or another Java IDE
+
+### Clone the Repository
+
+```bash
+git clone https://github.com/Md-Afzaal/Network-Log-Analyzer.git
+```
+
+### Open the Project
+
+Open the project in IntelliJ IDEA and allow Maven to load the dependencies.
+
+### Run
+
+Run:
+
+```text
+Main.java
+```
+
+The application will start the console interface.
+
+---
+
+# Testing
+
+Run the JUnit test suite from IntelliJ IDEA or Maven.
+
+The tests are located under:
+
+```text
+src/test/java/
+```
+
+The test suite validates the core parsing, filtering, sorting, analysis, and anomaly detection functionality.
+
+---
+
+# Author
 
 **Aish**
 
-Built as a Java-based network log analysis project focusing on data processing, algorithms, and anomaly detection.
+Java-based network log analysis project focused on:
+
+- Data processing
+- Algorithms
+- Network log analysis
+- Rule-based anomaly detection
+- Input validation
+- Automated testing
+
+---
+
+## Repository
+
+GitHub:
+
+https://github.com/Md-Afzaal/Network-Log-Analyzer.git
