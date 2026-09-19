@@ -109,21 +109,28 @@ public class SortCLI {
                     "2. Largest to Smallest\n"+
                     "3. Back\n");
             System.out.print("Enter your choice: ");
-            choice = scan.nextInt();
-            switch (choice) {
-                case 1:
-                    sortBytesByAscendingOrder(logs,logSorter);
-                    break;
-                case 2:
-                    sortBytesByDescendingOrder(logs,logSorter);
-                    break;
-                case 3:
-                    return;
-                default:
-                    System.out.println("Invalid choice.");
-                    break;
+            try {
+                choice = scan.nextInt();
+                switch (choice) {
+                    case 1:
+                        sortBytesByAscendingOrder(logs,logSorter);
+                        break;
+                    case 2:
+                        sortBytesByDescendingOrder(logs,logSorter);
+                        break;
+                    case 3:
+                        return;
+                    default:
+                        System.out.println("Invalid choice.");
+                        break;
 
+                }
             }
+            catch (InputMismatchException e){
+                System.out.println("\nInvalid input. Enter from only the given options");
+                scan.nextLine();
+            }
+
         }
     }
     public void sortBytesByAscendingOrder(List<NetworkLog> logs,LogSorter logSorter) {
@@ -150,21 +157,28 @@ public class SortCLI {
                     "2. Largest to Smallest\n"+
                     "3. Back\n");
             System.out.print("Enter your choice: ");
-            choice = scan.nextInt();
-            switch (choice) {
-                case 1:
-                    sortPortByAscendingOrder(logs,logSorter);
-                    break;
-                case 2:
-                    sortPortByDescendingOrder(logs,logSorter);
-                    break;
-                case 3:
-                    return;
-                default:
-                    System.out.println("Invalid choice.");
-                    break;
+            try {
+                choice = scan.nextInt();
+                switch (choice) {
+                    case 1:
+                        sortPortByAscendingOrder(logs,logSorter);
+                        break;
+                    case 2:
+                        sortPortByDescendingOrder(logs,logSorter);
+                        break;
+                    case 3:
+                        return;
+                    default:
+                        System.out.println("Invalid choice.");
+                        break;
 
+                }
             }
+            catch (InputMismatchException e){
+                System.out.println("\nInvalid input. Enter from only the given options");
+                scan.nextLine();
+            }
+
         }
     }
 
@@ -192,21 +206,28 @@ public class SortCLI {
                     "2. Successful First\n"+
                     "3. Back\n");
             System.out.print("Enter your choice: ");
-            choice = scan.nextInt();
-            switch (choice) {
-                case 1:
-                    sortStatusByFailedFirst(logs,logSorter);
-                    break;
-                case 2:
-                    sortStatusBySuccessfulFirst(logs,logSorter);
-                    break;
-                case 3:
-                    return;
-                default:
-                    System.out.println("Invalid choice.");
-                    break;
+            try {
+                choice = scan.nextInt();
+                switch (choice) {
+                    case 1:
+                        sortStatusByFailedFirst(logs,logSorter);
+                        break;
+                    case 2:
+                        sortStatusBySuccessfulFirst(logs,logSorter);
+                        break;
+                    case 3:
+                        return;
+                    default:
+                        System.out.println("Invalid choice.");
+                        break;
 
+                }
             }
+            catch (InputMismatchException e){
+                System.out.println("\nInvalid input. Enter from only the given options");
+                scan.nextLine();
+            }
+
         }
     }
 

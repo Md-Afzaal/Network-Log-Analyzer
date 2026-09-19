@@ -25,6 +25,7 @@ public class FilterCLI {
 
             try {
                 int choice = scan.nextInt();
+                scan.nextLine();
                 if (choice == 6){
                     System.out.println("\nReturning to Main Menu...\n");
                     break;
@@ -50,7 +51,7 @@ public class FilterCLI {
                         continue;
                 }
 
-                target = scan.next();
+                target = scan.nextLine().trim();
 
                 if(!isValidFilterInput(choice,target)){
                     System.out.println("\nInvalid filter value.");
@@ -61,7 +62,7 @@ public class FilterCLI {
                 filterResults(logs,logFilter,choice,target);
 
             } catch (InputMismatchException e){
-                System.out.println("Invalid input. Enter a number");
+                System.out.println("Invalid input.");
                 scan.nextLine();
             }
         }
