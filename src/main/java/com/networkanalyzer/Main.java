@@ -10,10 +10,10 @@ import java.util.List;
 public class Main {
     public static void main(String[] args) {
         ConsoleCLI  cli = new ConsoleCLI();
-//        cli.startCLI();
-        LogParser logParser = new LogParser();
-        List<NetworkLog> logs = logParser.parse();
-        AnomalyDetector detector = new AnomalyDetector();
-        System.out.println(detector.detectAnomalies(logs));
+        cli.startCLI();
+//        LogParser logParser = new LogParser();
+//        List<NetworkLog> logs = logParser.parse();
+//        AnomalyDetector detector = new AnomalyDetector();
+//        System.out.println(detector.detectAnomalies(logs));
     }
 }

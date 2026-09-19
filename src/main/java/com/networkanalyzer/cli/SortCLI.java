@@ -39,7 +39,7 @@ public class SortCLI {
                     break;
                 default:
                     System.out.println("Invalid choice.");
-                    continue;
+                    break;
             }
 
         }

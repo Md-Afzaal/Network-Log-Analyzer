@@ -8,6 +8,7 @@ import com.networkanalyzer.parser.LogParser;
 import com.networkanalyzer.sort.LogSorter;
 
 import java.time.LocalDateTime;
+import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
@@ -23,17 +24,17 @@ public class ConsoleCLI {
         List<NetworkLog> lst = logParser.parse();
         AnalysisResult analysis = logAnalyzer.analyze(lst);
         while(true){
-            try{
-                System.out.println("====================================");
-                System.out.println("        NETWORK LOG ANALYZER        ");
-                System.out.println("====================================");
-                System.out.println();
-                System.out.println("1. View Log Analysis\n" +
-                        "2. Filter Logs\n" +
-                        "3. Sort Logs\n" +
-                        "4. View All Logs\n" +
-                        "5. Exit\n");
-                System.out.print("Enter your choice: ");
+            System.out.println("====================================");
+            System.out.println("        NETWORK LOG ANALYZER        ");
+            System.out.println("====================================");
+            System.out.println();
+            System.out.println("1. View Log Analysis\n" +
+                    "2. Filter Logs\n" +
+                    "3. Sort Logs\n" +
+                    "4. View All Logs\n" +
+                    "5. Exit\n");
+            System.out.print("Enter your choice: ");
+            try {
                 int mainMenuChoice = scan.nextInt();
                 switch (mainMenuChoice) {
                     case 1:
@@ -51,11 +52,13 @@ public class ConsoleCLI {
                     case 5:
                         System.out.println("\nExiting....");
                         return;
+                    default:
+                        System.out.println("\nInvalid Input. Enter a number according to the options provided.");
+                        break;
                 }
-
-            }
-            catch (Exception e){
-                System.out.println(e.getMessage());
+            } catch (InputMismatchException e) {
+                System.out.println("\nInvalid input. Enter a number.");
+                scan.nextLine();
             }
         }
     }
@@ -68,7 +71,9 @@ public class ConsoleCLI {
         Map<Integer,Integer> ports = result.getPorts();
         Map<String, Integer> sourceIp = result.getSourceIp();
         System.out.println("\n========= NETWORK ANALYSIS =========");
-        System.out.println("Total Logs: "+totalLogs+"\nSuccess: "+successCount+"\nFailed: "+failedCount);
+        System.out.println("Total Logs: "+totalLogs+
+                "\nSuccess: "+successCount+
+                "\nFailed: "+failedCount);
         System.out.println("\n------ Protocol  Distribution ------");
         for (String protocolName : protocol.keySet()) {
             System.out.println(protocolName+" : "+protocol.get(protocolName));
