@@ -41,13 +41,25 @@ public class ConsoleCLI {
                         analysisResult(analysis);
                         break;
                     case 2:
+                        if (lst.isEmpty()){
+                            System.out.println("\nNo logs available to sort.");
+                            break;
+                        }
                         filterCli.filterLogsBy(lst,logFilter,scan);
                         break;
                     case 3:
+                        if (lst.isEmpty()){
+                            System.out.println("\nNo logs available to sort.");
+                            break;
+                        }
                         sortCli.sortLogBy(lst,scan);
                         break;
                     case 4:
-                        viewAllLogs(lst);
+                        if (lst.isEmpty()){
+                            System.out.println("\nNo logs available to sort.");
+                            break;
+                        }
+                        displayALlLogs(lst);
                         break;
                     case 5:
                         System.out.println("\nExiting....");
@@ -88,9 +100,31 @@ public class ConsoleCLI {
         }
     }
 
-    public void viewAllLogs(List<NetworkLog> lst){
-        for(NetworkLog log : lst){
-            System.out.println(log);
+    public void displayALlLogs(List<NetworkLog> lst){
+        System.out.println("\n============= All Logs =============");
+        System.out.println("\nTotal Logs: "+ lst.size());
+        System.out.println();
+
+        for (NetworkLog log : lst) {
+            LocalDateTime dateTime = log.getTimestamp();
+            String sourceIp = log.getSourceIp();
+            String destinationIp = log.getDestinationIp();
+            String protocol = log.getProtocol();
+            int port = log.getPort();
+            String status = log.getStatus();
+            long bytes = log.getBytes();
+
+            System.out.println(dateTime);
+            System.out.println();
+            System.out.println("Source IP       : "+sourceIp);
+            System.out.println("Destination IP  : "+destinationIp);
+            System.out.println("Protocol        : "+protocol);
+            System.out.println("Port            : "+port);
+            System.out.println("Status          : "+status);
+            System.out.println("Bytes           : "+bytes);
+            System.out.println();
+            System.out.println("------------------------------------\n");
         }
+
     }
 }
