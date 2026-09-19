@@ -5,6 +5,7 @@ import com.networkanalyzer.sort.LogSorter;
 
 import java.time.LocalDateTime;
 import java.util.Comparator;
+import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Scanner;
 
@@ -19,28 +20,35 @@ public class SortCLI {
                     "4.Sort by Status\n"+
                     "5.Back to Main Menu\n");
             System.out.print("Enter your choice: ");
-            int choice = scan.nextInt();
-            if (choice == 5){
-                System.out.println("\nReturning to Main Menu...\n");
-                break;
+            try {
+                int choice = scan.nextInt();
+                if (choice == 5){
+                    System.out.println("\nReturning to Main Menu...\n");
+                    break;
+                }
+                switch (choice) {
+                    case 1:
+                        sortByTimeStamp(logs,logSorter,scan);
+                        break;
+                    case 2:
+                        sortByBytes(logs,logSorter,scan);
+                        break;
+                    case 3:
+                        sortByPort(logs,logSorter,scan);
+                        break;
+                    case 4:
+                        sortByStatus(logs,logSorter,scan);
+                        break;
+                    default:
+                        System.out.println("\nInvalid choice.");
+                        break;
+                }
             }
-            switch (choice) {
-                case 1:
-                    sortByTimeStamp(logs,logSorter,scan);
-                    break;
-                case 2:
-                    sortByBytes(logs,logSorter,scan);
-                    break;
-                case 3:
-                    sortByPort(logs,logSorter,scan);
-                    break;
-                case 4:
-                    sortByStatus(logs,logSorter,scan);
-                    break;
-                default:
-                    System.out.println("Invalid choice.");
-                    break;
+            catch (InputMismatchException e){
+                System.out.println("\nInvalid input. Enter from only the given options");
+                scan.nextLine();
             }
+
 
         }
     }
@@ -52,21 +60,28 @@ public class SortCLI {
                     "2. Newest to Oldest\n"+
                     "3. Back\n");
             System.out.print("Enter your choice: ");
-            choice = scan.nextInt();
-            switch (choice) {
-                case 1:
-                    sortTimeStampByAscendingOrder(logs,logSorter);
-                    break;
-                case 2:
-                    sortTimeStampByDescendingOrder(logs,logSorter);
-                    break;
-                case 3:
-                    return;
-                default:
-                    System.out.println("Invalid choice.");
-                    break;
+            try {
+                choice = scan.nextInt();
+                switch (choice) {
+                    case 1:
+                        sortTimeStampByAscendingOrder(logs,logSorter);
+                        break;
+                    case 2:
+                        sortTimeStampByDescendingOrder(logs,logSorter);
+                        break;
+                    case 3:
+                        return;
+                    default:
+                        System.out.println("Invalid choice.");
+                        break;
 
+                }
             }
+            catch (InputMismatchException e){
+                System.out.println("\nInvalid input. Enter from only the given options");
+                scan.nextLine();
+            }
+
         }
     }
 
