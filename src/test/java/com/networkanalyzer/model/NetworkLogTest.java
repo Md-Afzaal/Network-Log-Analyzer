@@ -3,7 +3,6 @@ package com.networkanalyzer.model;
 import org.junit.jupiter.api.Test;
 
 import java.time.format.DateTimeParseException;
-import java.util.InputMismatchException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
