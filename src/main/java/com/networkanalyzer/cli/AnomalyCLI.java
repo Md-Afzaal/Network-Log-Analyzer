@@ -65,29 +65,38 @@ public class AnomalyCLI {
         }
     }
 
+    public static void displayAnomalies(List<Anomaly> anomalies){
+        for (Anomaly anomaly: anomalies){
+            String sourceIP = anomaly.getSourceIp();
+            String destinationIP = anomaly.getDestinationIp();
+            long count = anomaly.getCount();
+            int port = anomaly.getPort();
+            String description = anomaly.getDescription();
+
+            System.out.println("Source IP       : "+sourceIP);
+            System.out.println("Destination IP  : "+destinationIP);
+            if(port!=-1){
+                System.out.println("Port            : "+port);
+
+            }
+            System.out.println("Count           : "+count);
+            System.out.println("Description:\n"+description);
+            System.out.println();
+            System.out.println("------------------------------------\n");
+        }
+    }
+
     public static void getAnomalyByRepeatedFailedAttempts(
             List<NetworkLog> logs,
             AnomalyDetector anomalyDetector
     ){
-        List<Anomaly> anomalies = new ArrayList<>(anomalyDetector.detectRepeatedFailedAttempts(logs));
+        List<Anomaly> anomalies = anomalyDetector.detectRepeatedFailedAttempts(logs);
 
         if(anomalies.isEmpty()){
             System.out.println("\nNo repeated failed attempts detected.\n");
         }
         else{
-            for (Anomaly anomaly: anomalies){
-                String sourceIP = anomaly.getSourceIp();
-                String destinationIP = anomaly.getDestinationIp();
-                long count = anomaly.getCount();
-                String description = anomaly.getDescription();
-
-                System.out.println("Source IP       : "+sourceIP);
-                System.out.println("Destination IP  : "+destinationIP);
-                System.out.println("Count           : "+count);
-                System.out.println("Description:\n"+description);
-                System.out.println();
-                System.out.println("------------------------------------\n");
-            }
+            displayAnomalies(anomalies);
         }
     }
 
@@ -101,19 +110,7 @@ public class AnomalyCLI {
             System.out.println("\n   No port scan activity detected.   \n");
         }
         else{
-            for (Anomaly anomaly: anomalies){
-                String sourceIP = anomaly.getSourceIp();
-                String destinationIP = anomaly.getDestinationIp();
-                long count = anomaly.getCount();
-                String description = anomaly.getDescription();
-
-                System.out.println("Source IP       : "+sourceIP);
-                System.out.println("Destination IP  : "+destinationIP);
-                System.out.println("Count           : "+count);
-                System.out.println("Description:\n"+description);
-                System.out.println();
-                System.out.println("------------------------------------\n");
-            }
+            displayAnomalies(anomalies);
         }
     }
 
@@ -124,22 +121,10 @@ public class AnomalyCLI {
         List<Anomaly> anomalies = anomalyDetector.detectHighBytes(logs);
 
         if(anomalies.isEmpty()){
-            System.out.println("\n   No High Data Transfer detected   \n");
+            System.out.println("   \nNo high data transfer detected.\n   ");
         }
         else{
-            for (Anomaly anomaly: anomalies){
-                String sourceIP = anomaly.getSourceIp();
-                String destinationIP = anomaly.getDestinationIp();
-                long count = anomaly.getCount();
-                String description = anomaly.getDescription();
-
-                System.out.println("Source IP       : "+sourceIP);
-                System.out.println("Destination IP  : "+destinationIP);
-                System.out.println("Count           : "+count);
-                System.out.println("Description:\n"+description);
-                System.out.println();
-                System.out.println("------------------------------------\n");
-            }
+            displayAnomalies(anomalies);
         }
     }
 
@@ -150,24 +135,10 @@ public class AnomalyCLI {
         List<Anomaly> anomalies = anomalyDetector.detectSensitivePorts(logs);
 
         if(anomalies.isEmpty()){
-            System.out.println("\nNo sensitive port scan access detected.\n");
+            System.out.println("\nNo sensitive port access detected.\n");
         }
         else{
-            for (Anomaly anomaly: anomalies){
-                String sourceIP = anomaly.getSourceIp();
-                String destinationIP = anomaly.getDestinationIp();
-                long count = anomaly.getCount();
-                int port = anomaly.getPort();
-                String description = anomaly.getDescription();
-
-                System.out.println("Source IP       : "+sourceIP);
-                System.out.println("Destination IP  : "+destinationIP);
-                System.out.println("Port            : "+port);
-                System.out.println("Count           : "+count);
-                System.out.println("Description:\n"+description);
-                System.out.println();
-                System.out.println("------------------------------------\n");
-            }
+            displayAnomalies(anomalies);
         }
     }
 
