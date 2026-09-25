@@ -88,12 +88,7 @@ public class AnomalyDetector {
 
             String key = entry.getSourceIp() + "->" + entry.getDestinationIp();
 
-            List<NetworkLog> val = groupedLogs.get(key);
-
-            if (val == null) {
-                val = new ArrayList<>();
-                groupedLogs.put(key, val);
-            }
+            List<NetworkLog> val = groupedLogs.computeIfAbsent(key, k -> new ArrayList<>());
 
             val.add(entry);
         }
@@ -190,15 +185,9 @@ public class AnomalyDetector {
             // Create a unique key for the source and destination pair.
             String key = log.getSourceIp() + "->" + log.getDestinationIp();
 
-            // Get the set of ports already seen for this connection pair.
-            Set<Integer> ports = map.get(key);
-
             // Create a new set when this connection pair is encountered
             // for the first time.
-            if (ports == null) {
-                ports = new HashSet<>();
-                map.put(key, ports);
-            }
+            Set<Integer> ports = map.computeIfAbsent(key, k -> new HashSet<>());
 
             // Add the current port. HashSet automatically ignores
             // duplicate port numbers.
@@ -271,14 +260,8 @@ public class AnomalyDetector {
 
             long bytes = log.getBytes();
 
-            // Get the list of bytes already recorded for this pair.
-            List<Long> bytesList = map.get(key);
-
             // Create a new list for a previously unseen connection pair.
-            if (bytesList == null) {
-                bytesList = new ArrayList<>();
-                map.put(key, bytesList);
-            }
+            List<Long> bytesList = map.computeIfAbsent(key, k -> new ArrayList<>());
 
             // Store the bytes transferred by this connection.
             bytesList.add(bytes);
