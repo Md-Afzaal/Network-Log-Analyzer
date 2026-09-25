@@ -15,12 +15,14 @@ public class FilterCLI {
         while(true){
             String target;
             System.out.println("\n=========== Filter  Logs ===========\n");
-            System.out.println("1.Filter by SourceIP\n"+
+            System.out.println(
+                    "1.Filter by SourceIP\n"+
                     "2.Filter by DestinationIP\n"+
                     "3.Filter by Protocol\n"+
                     "4.Filter by Port\n"+
                     "5.Filter by Status\n"+
-                    "6.Back to Main Menu\n");
+                    "6.Back to Main Menu\n"
+            );
             System.out.print("Enter your choice: ");
 
             try {

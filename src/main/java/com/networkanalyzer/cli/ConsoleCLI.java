@@ -1,8 +1,10 @@
 package com.networkanalyzer.cli;
 
+import com.networkanalyzer.analyzer.AnomalyDetector;
 import com.networkanalyzer.analyzer.LogAnalyzer;
 import com.networkanalyzer.filter.LogFilter;
 import com.networkanalyzer.model.AnalysisResult;
+import com.networkanalyzer.model.Anomaly;
 import com.networkanalyzer.model.NetworkLog;
 import com.networkanalyzer.parser.LogParser;
 import com.networkanalyzer.sort.LogSorter;
@@ -18,7 +20,9 @@ public class ConsoleCLI {
         LogParser logParser = new LogParser();
         FilterCLI filterCli = new FilterCLI();
         SortCLI sortCli = new SortCLI();
+        AnomalyCLI anomalyCli = new AnomalyCLI();
         LogFilter logFilter = new LogFilter();
+        AnomalyDetector anomalyDetector = new AnomalyDetector();
         Scanner scan = new Scanner(System.in);
         LogAnalyzer logAnalyzer = new LogAnalyzer();
         List<NetworkLog> lst = logParser.parse();
@@ -28,11 +32,15 @@ public class ConsoleCLI {
             System.out.println("        NETWORK LOG ANALYZER        ");
             System.out.println("====================================");
             System.out.println();
-            System.out.println("1. View Log Analysis\n" +
+            System.out.println(
+                    "1. View Log Analysis\n" +
                     "2. Filter Logs\n" +
                     "3. Sort Logs\n" +
                     "4. View All Logs\n" +
-                    "5. Exit\n");
+                    "5. Detect Anomalies\n"+
+                    "6. Exit\n"
+
+            );
             System.out.print("Enter your choice: ");
             try {
                 int mainMenuChoice = scan.nextInt();
@@ -42,26 +50,33 @@ public class ConsoleCLI {
                         break;
                     case 2:
                         if (lst.isEmpty()){
-                            System.out.println("\nNo logs available to sort.");
+                            System.out.println("\nNo logs available to Filter.");
                             break;
                         }
                         filterCli.filterLogsBy(lst,logFilter,scan);
                         break;
                     case 3:
                         if (lst.isEmpty()){
-                            System.out.println("\nNo logs available to sort.");
+                            System.out.println("\nNo logs available to Sort.");
                             break;
                         }
                         sortCli.sortLogBy(lst,scan);
                         break;
                     case 4:
                         if (lst.isEmpty()){
-                            System.out.println("\nNo logs available to sort.");
+                            System.out.println("\nNo logs available to View.");
                             break;
                         }
                         displayALlLogs(lst);
                         break;
                     case 5:
+                        if (lst.isEmpty()){
+                            System.out.println("\nNo logs available to View.");
+                            break;
+                        }
+                        anomalyCli.getAnomalyBy(lst,anomalyDetector,scan);
+                        break;
+                    case 6:
                         System.out.println("\nExiting....");
                         return;
                     default:
