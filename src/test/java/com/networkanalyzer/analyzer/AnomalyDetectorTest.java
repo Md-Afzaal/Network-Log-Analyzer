@@ -187,4 +187,55 @@ class AnomalyDetectorTest {
         );
     }
 
+    @Test
+    void shouldDetectRepeatedFailedAttemptsWithinTimeWindow() {
+
+        List<NetworkLog> logs = new ArrayList<>();
+
+        logs.add(new NetworkLog(new String[]{
+                "2026-09-19T10:00:00",
+                "192.168.1.10",
+                "192.168.1.20",
+                "TCP",
+                "22",
+                "FAILED",
+                "100"
+        }));
+
+        logs.add(new NetworkLog(new String[]{
+                "2026-09-19T10:02:00",
+                "192.168.1.10",
+                "192.168.1.20",
+                "TCP",
+                "22",
+                "FAILED",
+                "100"
+        }));
+
+        logs.add(new NetworkLog(new String[]{
+                "2026-09-19T10:04:00",
+                "192.168.1.10",
+                "192.168.1.20",
+                "TCP",
+                "22",
+                "FAILED",
+                "100"
+        }));
+
+        AnomalyDetector detector = new AnomalyDetector();
+
+        List<Anomaly> anomalies =
+                detector.detectRepeatedFailedAttempts(logs);
+
+        assertNotNull(anomalies);
+        assertEquals(1, anomalies.size());
+
+        Anomaly anomaly = anomalies.get(0);
+
+        assertEquals("Repeated failed attempts", anomaly.getType());
+        assertEquals("192.168.1.10", anomaly.getSourceIp());
+        assertEquals("192.168.1.20", anomaly.getDestinationIp());
+        assertEquals(3, anomaly.getCount());
+    }
+
 }

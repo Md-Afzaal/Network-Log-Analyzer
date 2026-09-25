@@ -2,10 +2,16 @@ package com.networkanalyzer.analyzer;
 
 import com.networkanalyzer.model.Anomaly;
 import com.networkanalyzer.model.NetworkLog;
+import com.networkanalyzer.sort.LogSorter;
 
+import java.time.Duration;
 import java.util.*;
 
 public class AnomalyDetector {
+
+    private static final int FAILED_ATTEMPT_THRESHOLD = 3;
+    private static final long TIME_WINDOW_MINUTES = 5;
+
     public List<Anomaly> detectAnomalies(List<NetworkLog> logs) {
         List<Anomaly> anomalies = new ArrayList<>();
         anomalies.addAll(detectRepeatedFailedAttempts(logs));
@@ -21,11 +27,15 @@ public class AnomalyDetector {
 
         // Stores the number of FAILED connection attempts for each
         // source IP -> destination IP pair.
-        Map<String,Integer> map = new HashMap<>();
+        Map<String,List<NetworkLog>> groupedLogs = new HashMap<>();
+
+        LogSorter logSorter = new LogSorter();
 
         // Name of the anomaly generated when a connection pair
         // has multiple failed attempts.
         String type = "Repeated failed attempts";
+
+        List<NetworkLog> sortedLog = new ArrayList<>();
 
         // Stores all anomalies detected from the provided logs.
         List<Anomaly> anomalies = new ArrayList<>();
@@ -34,33 +44,46 @@ public class AnomalyDetector {
         // how many times each source -> destination pair appears.
         for (NetworkLog log : logs) {
             if(log.getStatus().equals("FAILED")){
-
-                // Combine source and destination IP to create a unique
-                // identifier for a connection pair.
-                String key = log.getSourceIp()+"->"+log.getDestinationIp();
-
-                // Increment the failure count for this connection pair.
-                // If the pair has not appeared before, start its count at 0.
-                map.put(key,map.getOrDefault(key,0)+1);
+                sortedLog.add(log);
             }
         }
+        logSorter.quickSort(sortedLog,0,sortedLog.size()-1, Comparator.comparing(NetworkLog::getTimestamp));
+
 
         // Second pass: check the failure counts and create an Anomaly
         // object for every connection pair with 3 or more failures.
-        for (String entry : map.keySet()) {
-            if(map.get(entry)>=3){
+        for (NetworkLog entry : sortedLog) {
+                String key = entry.getSourceIp()+"->"+entry.getDestinationIp();
+                List<NetworkLog> val = groupedLogs.get(key);
+                if(val==null){
+                    val = new ArrayList<>();
+                    groupedLogs.put(key,val);
+                }
+                val.add(entry);
+        }
 
-                // Split the connection key back into source and destination IPs.
-                String[] split = entry.split("->");
-                String sourceIp = split[0];
-                String destinationIp = split[1];
-
-                // Get the total number of failed attempts for this pair.
-                int count = map.get(entry);
-
+        for (List<NetworkLog> pairLogs: groupedLogs.values()){
+            int start = 0;
+            int maxCount = 0;
+            int maxStart = 0;
+            for(int end = 0; end < pairLogs.size(); end++){
+                while(Duration.between(
+                        pairLogs.get(start).getTimestamp(),
+                        pairLogs.get(end).getTimestamp()
+                ).toMinutes()>5){
+                    start++;
+                }
+                int count = end-start+1;
+                if(count>maxCount){
+                    maxCount = count;
+                    maxStart = start;
+                }
+            }
+            if(maxCount>=3){
                 // Create a description for the anomaly.
-                String description = count+" failed connection attempts detected";
-
+                String description = maxCount+" failed connection attempts detected within 5 mins";
+                String sourceIp = pairLogs.get(maxStart).getSourceIp();
+                String destinationIp = pairLogs.get(maxStart).getDestinationIp();
                 // Store the detected anomaly in the result list.
                 Anomaly anomaly = new Anomaly(
                         type,
@@ -68,7 +91,7 @@ public class AnomalyDetector {
                         destinationIp,
                         -1,
                         description,
-                        count
+                        maxCount
                 );
 
                 anomalies.add(anomaly);
