@@ -5,6 +5,7 @@ import com.networkanalyzer.analyzer.LogAnalyzer;
 import com.networkanalyzer.filter.LogFilter;
 import com.networkanalyzer.model.AnalysisResult;
 import com.networkanalyzer.model.Anomaly;
+import com.networkanalyzer.model.AnomalyConfig;
 import com.networkanalyzer.model.NetworkLog;
 import com.networkanalyzer.parser.LogParser;
 import com.networkanalyzer.sort.LogSorter;
@@ -22,7 +23,15 @@ public class ConsoleCLI {
         SortCLI sortCli = new SortCLI();
         AnomalyCLI anomalyCli = new AnomalyCLI();
         LogFilter logFilter = new LogFilter();
-        AnomalyDetector anomalyDetector = new AnomalyDetector();
+        AnomalyConfig config = new AnomalyConfig(
+                3,          // Failed attempt threshold
+                5,          // Time window in minutes
+                5,          // Port scan threshold
+                1_000_000L, // High data transfer threshold
+                3           // Sensitive port access threshold
+        );
+
+        AnomalyDetector anomalyDetector = new AnomalyDetector(config);
         Scanner scan = new Scanner(System.in);
         LogAnalyzer logAnalyzer = new LogAnalyzer();
         List<NetworkLog> lst = logParser.parse();

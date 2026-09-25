@@ -5,6 +5,7 @@ import com.networkanalyzer.analyzer.LogAnalyzer;
 import com.networkanalyzer.filter.LogFilter;
 import com.networkanalyzer.model.AnalysisResult;
 import com.networkanalyzer.model.Anomaly;
+import com.networkanalyzer.model.AnomalyConfig;
 import com.networkanalyzer.model.NetworkLog;
 import com.networkanalyzer.parser.LogParser;
 import com.networkanalyzer.sort.LogSorter;
@@ -22,7 +23,15 @@ public class NetworkLogAnalyzerIntegrationTest {
         LogAnalyzer analyzer = new LogAnalyzer();
         LogFilter filter = new LogFilter();
         LogSorter sorter = new LogSorter();
-        AnomalyDetector detector = new AnomalyDetector();
+        AnomalyConfig config = new AnomalyConfig(
+                3,
+                5,
+                5,
+                1_000_000L,
+                3
+        );
+
+        AnomalyDetector detector = new AnomalyDetector(config);
 
         List<NetworkLog> logs = parser.parse();
 

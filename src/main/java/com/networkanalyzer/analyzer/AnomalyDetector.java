@@ -1,6 +1,7 @@
 package com.networkanalyzer.analyzer;
 
 import com.networkanalyzer.model.Anomaly;
+import com.networkanalyzer.model.AnomalyConfig;
 import com.networkanalyzer.model.NetworkLog;
 import com.networkanalyzer.sort.LogSorter;
 
@@ -9,13 +10,11 @@ import java.util.*;
 
 public class AnomalyDetector {
 
-    // Minimum number of failed attempts required to trigger
-    // the repeated failed attempts anomaly.
-    private static final int FAILED_ATTEMPT_THRESHOLD = 3;
+    private final AnomalyConfig config;
 
-    // Maximum time interval allowed between the first and last
-    // failed attempt in a repeated-failure window.
-    private static final long TIME_WINDOW_MINUTES = 5;
+    public AnomalyDetector(AnomalyConfig config){
+        this.config = config;
+    }
 
     /**
      * Runs all available anomaly detection rules on the provided logs.
@@ -41,7 +40,7 @@ public class AnomalyDetector {
 
     /**
      * Detects repeated failed connection attempts between the same
-     * source and destination within a five-minute time window.
+     * source and destination within a configured time window.
      *
      * @param logs list of network logs to analyze
      * @return anomalies representing repeated failed attempts
@@ -73,7 +72,7 @@ public class AnomalyDetector {
         }
 
         // Sort failed attempts chronologically so that a sliding-window
-        // approach can be used to find repeated attempts within five minutes.
+        // approach can be used to find repeated attempts within the configured time window.
         logSorter.quickSort(
                 sortedLog,
                 0,
@@ -110,11 +109,11 @@ public class AnomalyDetector {
             for (int end = 0; end < pairLogs.size(); end++) {
 
                 // Move the start of the window forward whenever the
-                // time difference becomes greater than five minutes.
+                // time difference exceeds the configured time window.
                 while (Duration.between(
                         pairLogs.get(start).getTimestamp(),
                         pairLogs.get(end).getTimestamp()
-                ).toMinutes() > TIME_WINDOW_MINUTES) {
+                ).toMinutes() > config.getTimeWindowMinutes()) {
 
                     start++;
                 }
@@ -131,13 +130,13 @@ public class AnomalyDetector {
 
             // Create an anomaly only when the number of failed attempts
             // reaches the configured threshold.
-            if (maxCount >= FAILED_ATTEMPT_THRESHOLD) {
+            if (maxCount >= config.getFailedAttemptThreshold()) {
 
                 // Describe how many failed attempts were detected
                 // within the configured time window.
                 String description =
                         maxCount + " failed connection attempts detected within "
-                                + TIME_WINDOW_MINUTES + " mins";
+                                + config.getTimeWindowMinutes() + " mins";
 
                 // Get the source and destination belonging to the
                 // strongest detected time window.
@@ -197,9 +196,9 @@ public class AnomalyDetector {
         // Check every connection pair for the port-scan threshold.
         for (String key : map.keySet()) {
 
-            // A connection pair accessing five or more unique ports
+            // A connection pair accessing the configured number of unique ports
             // is considered a possible port scan.
-            if (map.get(key).size() >= 5) {
+            if (map.get(key).size() >= config.getPortScanThreshold()) {
 
                 // Split the connection key back into source and destination IPs.
                 String[] split = key.split("->");
@@ -248,10 +247,6 @@ public class AnomalyDetector {
 
         String type = "High Data Transfer";
 
-        // Minimum total number of bytes required to trigger
-        // the high-data-transfer anomaly.
-        long threshold = 1_000_000L;
-
         // Process every network log.
         for (NetworkLog log : logs) {
 
@@ -280,7 +275,7 @@ public class AnomalyDetector {
             long sum = getTotalBytes(map.get(key));
 
             // Generate an anomaly when the total reaches the threshold.
-            if (sum >= threshold) {
+            if (sum >= config.getHighDataTransferThreshold()) {
 
                 // Create a description containing the total transferred data.
                 String description =
@@ -388,8 +383,8 @@ public class AnomalyDetector {
                 int portCount = map.get(key).get(portKey);
 
                 // Generate an anomaly when the same sensitive port
-                // has been accessed at least three times.
-                if (portCount >= 3) {
+                // has been accessed at least the configured number of times.
+                if (portCount >= config.getSensitivePortThreshold()) {
 
                     // Describe how many access attempts were detected.
                     String description =

@@ -2,9 +2,9 @@ package com.networkanalyzer.integration;
 
 import com.networkanalyzer.analyzer.AnomalyDetector;
 import com.networkanalyzer.model.Anomaly;
+import com.networkanalyzer.model.AnomalyConfig;
 import com.networkanalyzer.model.NetworkLog;
 import com.networkanalyzer.parser.LogParser;
-import com.networkanalyzer.sort.LogSorter;
 import org.junit.jupiter.api.Test;
 
 import java.util.*;
@@ -19,7 +19,15 @@ public class ParserAnomalyIntegrationTest {
         String type = "High Data Transfer";
         long threshold = 1_000_000L;
         LogParser parser = new LogParser();
-        AnomalyDetector anomalyDetector = new AnomalyDetector();
+        AnomalyConfig config = new AnomalyConfig(
+                3,
+                5,
+                5,
+                1_000_000L,
+                3
+        );
+
+        AnomalyDetector anomalyDetector = new AnomalyDetector(config);
 
         List<NetworkLog> logs = parser.parse();
         List<Anomaly> anomalies = anomalyDetector.detectHighBytes(logs);
